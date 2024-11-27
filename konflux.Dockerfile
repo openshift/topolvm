@@ -15,7 +15,7 @@ ENV GOEXPERIMENT=strictfipsruntime
 RUN go build -tags strictfipsruntime -o build/hypertopolvm -mod=mod -ldflags "-w -s -X github.com/topolvm/topolvm.Version=${TOPOLVM_VERSION}" ./cmd/hypertopolvm
 
 # Build Stage 2
-FROM quay.io/fedora/fedora-minimal:42
+FROM registry.redhat.io/rhel9-4-els/rhel-minimal:9.4
 
 # Update the image to get the latest CVE updates
 RUN microdnf update -y && \
