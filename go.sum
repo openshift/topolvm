@@ -74,8 +74,8 @@ github.com/coreos/go-semver v0.2.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3Ee
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/cybozu-go/log v1.5.0/go.mod h1:zpfovuCgUx+a/ErvQrThoT+/z1RVQoLDOf95wkBeRiw=
-github.com/cybozu-go/log v1.6.0 h1:4pFNEdcdfDg2NpvdQhetROskivCyJemwL/i1RpzL4/s=
-github.com/cybozu-go/log v1.6.0/go.mod h1:2iAEvn2cL5dy/1uP5Jfb0Ao9+DUnDr//V0Bk3WDJX1U=
+github.com/cybozu-go/log v1.7.0 h1:wPTkNDWcnSLLAv1ejFSn07qvYG8ng6U6Gygv04dYW1w=
+github.com/cybozu-go/log v1.7.0/go.mod h1:pwWH0DFLY85XgTEI6nqkDAvmGReEBDu2vmlkU7CpudQ=
 github.com/cybozu-go/netutil v1.2.0 h1:UBO0+hB43zd5mIXRfD195eBMHvgWlHP2mYuQ2F5Yxtg=
 github.com/cybozu-go/netutil v1.2.0/go.mod h1:Wx92iF1dPrtuSzLUMEidtrKTFiDWpLcsYvbQ1lHSmxY=
 github.com/cybozu-go/well v1.10.0 h1:UuZO0Dxa5xf/4vBbNOH325Y+h04IsHGn6qpV6b6NYqY=
