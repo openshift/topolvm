@@ -3,9 +3,21 @@
 [![Travis Build](https://travis-ci.org/mwitkow/go-proto-validators.svg)](https://travis-ci.org/mwitkow/go-proto-validators)
 [![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A `protoc` plugin that generates `Validate() error` functions on Go proto `struct`s based on field options inside `.proto` 
+A `protoc` plugin that generates `Validate() error` functions on Go proto `struct`s based on field options inside `.proto`
 files. The validation functions are code-generated and thus don't suffer on performance from tag-based reflection on
 deeply-nested messages.
+
+## Requirements
+
+Using Protobuf validators is currently verified to work with:
+
+- Go 1.11, 1.12, 1.13
+- [Protobuf](https://github.com/protocolbuffers/protobuf) @ `v3.8.0`
+- [Go Protobuf](https://github.com/golang/protobuf) @ `v1.3.2`
+- [Gogo Protobuf](https://github.com/gogo/protobuf) @ `v1.3.0`
+
+It _should_ still be possible to use it in project using earlier Go versions. However if you want to contribute to this
+repository you'll need at least 1.11 for Go module support.
 
 ## Paint me a code picture
 
@@ -17,7 +29,7 @@ package validator.examples;
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 message InnerMessage {
-  // some_integer can only be in range (1, 100).
+  // some_integer can only be in range (0, 100).
   int32 some_integer = 1 [(validator.field) = {int_gt: 0, int_lt: 100}];
   // some_float can only be in range (0;1).
   double some_float = 2 [(validator.field) = {float_gte: 0, float_lte: 1}];
@@ -25,7 +37,7 @@ message InnerMessage {
 
 message OuterMessage {
   // important_string must be a lowercase alpha-numeric of 5 to 30 characters (RE2 syntax).
-  string important_string = 1 [(validator.field) = {regex: "^[a-z]{2,5}$"}];
+  string important_string = 1 [(validator.field) = {regex: "^[a-z0-9]{5,30}$"}];
   // proto3 doesn't have `required`, the `msg_exist` enforces presence of InnerMessage.
   InnerMessage inner = 2 [(validator.field) = {msg_exists : true}];
 }
@@ -54,11 +66,11 @@ func (this *InnerMessage) Validate() error {
 	return nil
 }
 
-var _regex_OuterMessage_ImportantString = regexp.MustCompile("^[a-z]{2,5}$")
+var _regex_OuterMessage_ImportantString = regexp.MustCompile("^[a-z0-9]{5,30}$")
 
 func (this *OuterMessage) Validate() error {
 	if !_regex_OuterMessage_ImportantString.MatchString(this.ImportantString) {
-		return fmt.Errorf("validation error: OuterMessage.ImportantString must conform to regex '^[a-z]{2,5}$'")
+		return fmt.Errorf("validation error: OuterMessage.ImportantString must conform to regex '^[a-z0-9]{5,30}$'")
 	}
 	if nil == this.Inner {
 		return fmt.Errorf("validation error: OuterMessage.Inner message must exist")
@@ -90,9 +102,9 @@ Your `protoc` builds probably look very simple like:
 
 ```sh
 protoc  \
-	--proto_path=. \
-	--go_out=. \
-	*.proto
+  --proto_path=. \
+  --go_out=. \
+  *.proto
 ```
 
 That's fine, until you encounter `.proto` includes. Because `go-proto-validators` uses field options inside the `.proto` 
@@ -101,32 +113,29 @@ path. Hence the above becomes:
 
 ```sh
 protoc  \
-	--proto_path=${GOPATH}/src \
-	--proto_path=${GOPATH}/src/github.com/google/protobuf/src \
-	--proto_path=. \
-	--go_out=. \
-	--govalidators_out=. \
-	*.proto
+  --proto_path=${GOPATH}/src \
+  --proto_path=${GOPATH}/src/github.com/google/protobuf/src \
+  --proto_path=. \
+  --go_out=. \
+  --govalidators_out=. \
+  *.proto
 ```
 
 Or with gogo protobufs:
 
 ```sh
 protoc  \
-	--proto_path=${GOPATH}/src \
-	--proto_path=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
-	--proto_path=. \
-	--gogo_out=. \
-	--govalidators_out=gogoimport=true:. \
-	*.proto
+  --proto_path=${GOPATH}/src \
+  --proto_path=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
+  --proto_path=. \
+  --gogo_out=. \
+  --govalidators_out=gogoimport=true:. \
+  *.proto
 ```
 
 Basically the magical incantation (apart from includes) is the `--govalidators_out`. That triggers the 
 `protoc-gen-govalidators` plugin to generate `mymessage.validator.pb.go`. That's it :)
 
-###License
+## License
 
 `go-proto-validators` is released under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
-
-
-
