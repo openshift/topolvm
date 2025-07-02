@@ -6,18 +6,14 @@ ARG TOPOLVM_VERSION
 
 WORKDIR /workspace
 
-COPY api/ api/
-COPY cmd/ cmd/
-COPY internal/ internal/ 
-COPY pkg/ pkg/
-COPY Makefile go.mod go.sum constants.go version.go csi-sidecars.mk versions.mk ./
+COPY ./ ./
 
 ENV CGO_ENABLED=1
 ENV GOOS=$TARGETOS
 ENV GOARCH=$TARGETARCH
 ENV GOEXPERIMENT=strictfipsruntime
 
-RUN go build -tags strictfipsruntime -o hypertopolvm -mod=mod -ldflags "-w -s -X github.com/topolvm/topolvm.Version=${TOPOLVM_VERSION}" ./cmd/hypertopolvm
+RUN go build -tags strictfipsruntime -o hypertopolvm -mod=vendor -ldflags "-w -s -X github.com/topolvm/topolvm.Version=${TOPOLVM_VERSION}" ./pkg/hypertopolvm
 
 FROM --platform=$TARGETPLATFORM registry.redhat.io/rhel9-2-els/rhel-minimal:9.2
 
