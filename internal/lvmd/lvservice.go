@@ -42,49 +42,17 @@ func (s *lvService) CreateLV(ctx context.Context, req *proto.CreateLVRequest) (*
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "%s: %s", err.Error(), req.DeviceClass)
 	}
-	vg, err := command.FindVolumeGroup(ctx, dc.VolumeGroup)
+	pool, err := storagePoolForDeviceClass(ctx, dc)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get pool from device class: %v", err)
 	}
 	oc := s.ocmapper.LvcreateOptionClass(req.LvcreateOptionClass)
 
-	var requested uint64
-	if req.SizeBytes > 0 {
-		// convert to uint64 because CSI uses int64 but lvmd internals and lvm use uint64
-		requested = uint64(req.GetSizeBytes())
-	} else {
-		// legacy conversion from SizeGb to SizeBytes
-		requested = req.GetSizeGb() << 30
+	requested := uint64(req.GetSizeBytes())
+	free, err := pool.Free(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get free bytes: %v", err)
 	}
-
-	free := uint64(0)
-	var pool *command.ThinPool
-	switch dc.Type {
-	case lvmdTypes.TypeThick:
-		free, err = vg.Free()
-		if err != nil {
-			logger.Error(err, "failed to get free bytes")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-	case lvmdTypes.TypeThin:
-		pool, err = vg.FindPool(ctx, dc.ThinPoolConfig.Name)
-		if err != nil {
-			logger.Error(err, "failed to get thinpool")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-		tpu, err := pool.Free(ctx)
-		if err != nil {
-			logger.Error(err, "failed to get free bytes")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-		free = calcThinPoolFreeBytes(
-			dc.ThinPoolConfig.OverprovisionRatio, tpu.SizeBytes, tpu.VirtualBytes)
-	default:
-		// technically this block will not be hit however make sure we return error
-		// in such cases where deviceclass target is neither thick or thinpool
-		return nil, status.Error(codes.Internal, fmt.Sprintf("unsupported device class target: %s", dc.Type))
-	}
-
 	if free < requested {
 		logger.Error(err, "not enough space left on VG", "free", free, "requested", requested)
 		return nil, status.Errorf(codes.ResourceExhausted, "no enough space left on VG: free=%d, requested=%d", free, requested)
@@ -107,14 +75,7 @@ func (s *lvService) CreateLV(ctx context.Context, req *proto.CreateLVRequest) (*
 		}
 	}
 
-	switch dc.Type {
-	case lvmdTypes.TypeThick:
-		err = vg.CreateVolume(ctx, req.GetName(), requested, req.GetTags(), stripe, stripeSize, lvcreateOptions)
-	case lvmdTypes.TypeThin:
-		err = pool.CreateVolume(ctx, req.GetName(), requested, req.GetTags(), stripe, stripeSize, lvcreateOptions)
-	default:
-		return nil, status.Error(codes.Internal, fmt.Sprintf("unsupported device class target: %s", dc.Type))
-	}
+	err = pool.CreateVolume(ctx, req.GetName(), requested, req.GetTags(), stripe, stripeSize, lvcreateOptions)
 	if err != nil {
 		logger.Error(err, "failed to create volume",
 			"requested", requested,
@@ -122,8 +83,7 @@ func (s *lvService) CreateLV(ctx context.Context, req *proto.CreateLVRequest) (*
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	lv, err := vg.FindVolume(ctx, req.GetName())
-
+	lv, err := pool.FindVolume(ctx, req.GetName())
 	if err != nil {
 		logger.Error(err, "failed to find volume",
 			"requested", requested,
@@ -138,8 +98,6 @@ func (s *lvService) CreateLV(ctx context.Context, req *proto.CreateLVRequest) (*
 	return &proto.CreateLVResponse{
 		Volume: &proto.LogicalVolume{
 			Name: lv.Name(),
-			// still set sizeGB for legacy purposes, can (but not has to) be removed in next minor release.
-			SizeGb: lv.Size() >> 30,
 			// convert to int64 because lvmd internals and lvm use uint64 but CSI uses int64.
 			// For most conventional lvm use cases overflow here will never occur (9223372 TB or above cause overflow)
 			SizeBytes: int64(lv.Size()),
@@ -181,13 +139,11 @@ func (s *lvService) RemoveLV(ctx context.Context, req *proto.RemoveLVRequest) (*
 
 func (s *lvService) CreateLVSnapshot(ctx context.Context, req *proto.CreateLVSnapshotRequest) (*proto.CreateLVSnapshotResponse, error) {
 	logger := log.FromContext(ctx).WithValues("name", req.GetName())
-
-	var snapType string
 	dc, err := s.dcmapper.DeviceClass(req.DeviceClass)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "%s: %s", err.Error(), req.DeviceClass)
 	}
-
+	var snapType string
 	switch dc.Type {
 	case lvmdTypes.TypeThin:
 		snapType = "thin-snapshot"
@@ -222,14 +178,7 @@ func (s *lvService) CreateLVSnapshot(ctx context.Context, req *proto.CreateLVSna
 	// gets resized after extension into the correct size
 	sizeOnCreation := sourceLV.Size()
 
-	var desiredSize uint64
-	if req.SizeBytes > 0 {
-		// convert to uint64 because CSI uses int64 but lvmd internals and lvm use uint64
-		desiredSize = uint64(req.GetSizeBytes())
-	} else {
-		// legacy conversion from SizeGb to SizeBytes
-		desiredSize = req.GetSizeGb() << 30
-	}
+	desiredSize := uint64(req.GetSizeBytes())
 
 	// in case there is no desired size in the request, we can still attempt to create the Snapshot with Source size.
 	if desiredSize == 0 {
@@ -245,8 +194,14 @@ func (s *lvService) CreateLVSnapshot(ctx context.Context, req *proto.CreateLVSna
 		logger.Error(err, "failed to get thinpool")
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	tpu, err := pool.Free(ctx)
-	free := calcThinPoolFreeBytes(dc.ThinPoolConfig.OverprovisionRatio, tpu.SizeBytes, tpu.VirtualBytes)
+	poolUsage, err := pool.Usage(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get pool usage: %v", err)
+	}
+	free, err := poolUsage.FreeBytes(dc.ThinPoolConfig.OverprovisionRatio)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get free bytes: %v", err)
+	}
 	if free < desiredSize {
 		logger.Error(err, "not enough space left on VG", "free", free, "desiredSize", desiredSize)
 		return nil, status.Errorf(codes.ResourceExhausted, "no enough space left on VG: free=%d, desiredSize=%d", free, desiredSize)
@@ -301,8 +256,6 @@ func (s *lvService) CreateLVSnapshot(ctx context.Context, req *proto.CreateLVSna
 	return &proto.CreateLVSnapshotResponse{
 		Snapshot: &proto.LogicalVolume{
 			Name: snapLV.Name(),
-			// still set sizeGB for legacy purposes, can (but not has to) be removed in next minor release.
-			SizeGb: snapLV.Size() >> 30,
 			// convert to int64 because lvmd internals and lvm use uint64 but CSI uses int64.
 			// For most conventional lvm use cases overflow here will never occur (9223372 TB or above cause overflow)
 			SizeBytes: int64(snapLV.Size()),
@@ -312,20 +265,20 @@ func (s *lvService) CreateLVSnapshot(ctx context.Context, req *proto.CreateLVSna
 	}, nil
 }
 
-func (s *lvService) ResizeLV(ctx context.Context, req *proto.ResizeLVRequest) (*proto.Empty, error) {
+func (s *lvService) ResizeLV(ctx context.Context, req *proto.ResizeLVRequest) (*proto.ResizeLVResponse, error) {
 	logger := log.FromContext(ctx).WithValues("name", req.GetName())
 
 	dc, err := s.dcmapper.DeviceClass(req.DeviceClass)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "%s: %s", err.Error(), req.DeviceClass)
 	}
-	vg, err := command.FindVolumeGroup(ctx, dc.VolumeGroup)
+	pool, err := storagePoolForDeviceClass(ctx, dc)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get pool from device class: %v", err)
 	}
 	// FindVolume on VolumeGroup or ThinPool returns ThinLogicalVolumes as well
 	// and no special handling for resize of LogicalVolume is needed
-	lv, err := vg.FindVolume(ctx, req.GetName())
+	lv, err := pool.FindVolume(ctx, req.GetName())
 	if errors.Is(err, command.ErrNotFound) {
 		logger.Error(err, "logical volume is not found")
 		return nil, status.Errorf(codes.NotFound, "logical volume %s is not found", req.GetName())
@@ -335,50 +288,16 @@ func (s *lvService) ResizeLV(ctx context.Context, req *proto.ResizeLVRequest) (*
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var requested uint64
-	if req.SizeBytes > 0 {
-		// convert to uint64 because CSI uses int64 but lvmd internals and lvm use uint64
-		requested = uint64(req.GetSizeBytes())
-	} else {
-		// legacy conversion from SizeGb to SizeBytes
-		requested = req.GetSizeGb() << 30
-	}
+	requested := uint64(req.GetSizeBytes())
 	current := lv.Size()
-
-	if requested < current {
-		logger.Error(err, "shrinking volume size is not allowed",
-			"requested", requested,
-			"current", current,
-		)
-		return nil, status.Error(codes.OutOfRange, "shrinking volume size is not allowed")
+	if requested <= current {
+		logger.Info("skipping resize: requested size is smaller than current size", "requested", requested, "current", current)
+		return &proto.ResizeLVResponse{SizeBytes: int64(current)}, nil
 	}
 
-	free := uint64(0)
-	var pool *command.ThinPool
-	switch dc.Type {
-	case lvmdTypes.TypeThick:
-		free, err = vg.Free()
-		if err != nil {
-			logger.Error(err, "failed to get free bytes")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-	case lvmdTypes.TypeThin:
-		pool, err = vg.FindPool(ctx, dc.ThinPoolConfig.Name)
-		if err != nil {
-			logger.Error(err, "failed to get thinpool")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-		tpu, err := pool.Free(ctx)
-		if err != nil {
-			logger.Error(err, "failed to get free bytes")
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-		free = calcThinPoolFreeBytes(
-			dc.ThinPoolConfig.OverprovisionRatio, tpu.SizeBytes, tpu.VirtualBytes)
-	default:
-		// technically this block will not be hit however make sure we return error
-		// in such cases where deviceclass target is neither thick or thinpool
-		return nil, status.Error(codes.Internal, fmt.Sprintf("unsupported device class target: %s", dc.Type))
+	free, err := pool.Free(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get free bytes: %v", err)
 	}
 
 	logger.Info(
@@ -408,7 +327,7 @@ func (s *lvService) ResizeLV(ctx context.Context, req *proto.ResizeLVRequest) (*
 	}
 	s.notify()
 
-	logger.Info("resized a LV", "size", requested)
+	logger.Info("resized a LV", "requested", requested, "size", lv.Size())
 
-	return &proto.Empty{}, nil
+	return &proto.ResizeLVResponse{SizeBytes: int64(lv.Size())}, nil
 }
