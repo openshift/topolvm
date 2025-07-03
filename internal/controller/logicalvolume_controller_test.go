@@ -56,7 +56,6 @@ type MockLVServiceClient struct {
 func (c MockLVServiceClient) CreateLV(ctx context.Context, in *proto.CreateLVRequest, opts ...grpc.CallOption) (*proto.CreateLVResponse, error) {
 	lv := proto.LogicalVolume{
 		Name:      in.Name,
-		SizeGb:    in.SizeGb,
 		SizeBytes: in.SizeBytes,
 	}
 	*volumes = append(*volumes, &lv)
@@ -77,7 +76,7 @@ func (MockLVServiceClient) RemoveLV(ctx context.Context, in *proto.RemoveLVReque
 }
 
 // ResizeLV implements proto.LVServiceClient.
-func (MockLVServiceClient) ResizeLV(ctx context.Context, in *proto.ResizeLVRequest, opts ...grpc.CallOption) (*proto.Empty, error) {
+func (MockLVServiceClient) ResizeLV(ctx context.Context, in *proto.ResizeLVRequest, opts ...grpc.CallOption) (*proto.ResizeLVResponse, error) {
 	panic("unimplemented")
 }
 
