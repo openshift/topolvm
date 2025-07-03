@@ -778,7 +778,7 @@ k8s.io/kube-openapi/pkg/validation/spec
 # k8s.io/mount-utils v0.26.3
 ## explicit; go 1.19
 k8s.io/mount-utils
-# k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
+# k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 ## explicit; go 1.18
 k8s.io/utils/buffer
 k8s.io/utils/clock
@@ -790,6 +790,7 @@ k8s.io/utils/io
 k8s.io/utils/keymutex
 k8s.io/utils/net
 k8s.io/utils/pointer
+k8s.io/utils/ptr
 k8s.io/utils/strings/slices
 k8s.io/utils/trace
 # sigs.k8s.io/controller-runtime v0.14.6
