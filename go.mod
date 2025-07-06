@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/container-storage-interface/spec v1.6.0
 	github.com/cybozu-go/well v1.10.0
-	github.com/go-logr/logr v1.2.4
+	github.com/go-logr/logr v1.4.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/go-cmp v0.5.9
 	github.com/kubernetes-csi/csi-test/v5 v5.0.0
@@ -25,7 +25,7 @@ require (
 	k8s.io/api v0.27.3
 	k8s.io/apimachinery v0.27.3
 	k8s.io/client-go v0.27.3
-	k8s.io/klog/v2 v2.90.1
+	k8s.io/klog/v2 v2.130.1
 	k8s.io/mount-utils v0.27.3
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491
 	sigs.k8s.io/controller-runtime v0.15.2
