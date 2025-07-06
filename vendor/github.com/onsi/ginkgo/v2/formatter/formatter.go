@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -23,15 +24,15 @@ const (
 
 var SingletonFormatter = New(ColorModeTerminal)
 
-func F(format string, args ...interface{}) string {
+func F(format string, args ...any) string {
 	return SingletonFormatter.F(format, args...)
 }
 
-func Fi(indentation uint, format string, args ...interface{}) string {
+func Fi(indentation uint, format string, args ...any) string {
 	return SingletonFormatter.Fi(indentation, format, args...)
 }
 
-func Fiw(indentation uint, maxWidth uint, format string, args ...interface{}) string {
+func Fiw(indentation uint, maxWidth uint, format string, args ...any) string {
 	return SingletonFormatter.Fiw(indentation, maxWidth, format, args...)
 }
 
@@ -50,13 +51,39 @@ func NewWithNoColorBool(noColor bool) Formatter {
 }
 
 func New(colorMode ColorMode) Formatter {
+	colorAliases := map[string]int{
+		"black":   0,
+		"red":     1,
+		"green":   2,
+		"yellow":  3,
+		"blue":    4,
+		"magenta": 5,
+		"cyan":    6,
+		"white":   7,
+	}
+	for colorAlias, n := range colorAliases {
+		colorAliases[fmt.Sprintf("bright-%s", colorAlias)] = n + 8
+	}
+
 	getColor := func(color, defaultEscapeCode string) string {
 		color = strings.ToUpper(strings.ReplaceAll(color, "-", "_"))
 		envVar := fmt.Sprintf("GINKGO_CLI_COLOR_%s", color)
-		if escapeCode := os.Getenv(envVar); escapeCode != "" {
-			return escapeCode
+		envVarColor := os.Getenv(envVar)
+		if envVarColor == "" {
+			return defaultEscapeCode
 		}
-		return defaultEscapeCode
+		if colorCode, ok := colorAliases[envVarColor]; ok {
+			return fmt.Sprintf("\x1b[38;5;%dm", colorCode)
+		}
+		colorCode, err := strconv.Atoi(envVarColor)
+		if err != nil || colorCode < 0 || colorCode > 255 {
+			return defaultEscapeCode
+		}
+		return fmt.Sprintf("\x1b[38;5;%dm", colorCode)
+	}
+
+	if _, noColor := os.LookupEnv("GINKGO_NO_COLOR"); noColor {
+		colorMode = ColorModeNone
 	}
 
 	f := Formatter{
@@ -88,16 +115,19 @@ func New(colorMode ColorMode) Formatter {
 	return f
 }
 
-func (f Formatter) F(format string, args ...interface{}) string {
+func (f Formatter) F(format string, args ...any) string {
 	return f.Fi(0, format, args...)
 }
 
-func (f Formatter) Fi(indentation uint, format string, args ...interface{}) string {
+func (f Formatter) Fi(indentation uint, format string, args ...any) string {
 	return f.Fiw(indentation, 0, format, args...)
 }
 
-func (f Formatter) Fiw(indentation uint, maxWidth uint, format string, args ...interface{}) string {
-	out := fmt.Sprintf(f.style(format), args...)
+func (f Formatter) Fiw(indentation uint, maxWidth uint, format string, args ...any) string {
+	out := f.style(format)
+	if len(args) > 0 {
+		out = fmt.Sprintf(out, args...)
+	}
 
 	if indentation == 0 && maxWidth == 0 {
 		return out
