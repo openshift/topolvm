@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
-	github.com/cybozu-go/log v1.6.0
+	github.com/cybozu-go/log v1.7.0
 	github.com/cybozu-go/well v1.10.0
 	github.com/go-logr/logr v1.2.3
 	github.com/golang/protobuf v1.5.4

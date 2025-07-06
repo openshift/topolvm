@@ -16,8 +16,8 @@ github.com/cespare/xxhash/v2
 # github.com/container-storage-interface/spec v1.6.0
 ## explicit; go 1.16
 github.com/container-storage-interface/spec/lib/go/csi
-# github.com/cybozu-go/log v1.6.0
-## explicit; go 1.13
+# github.com/cybozu-go/log v1.7.0
+## explicit; go 1.19
 github.com/cybozu-go/log
 # github.com/cybozu-go/netutil v1.2.0
 ## explicit
