@@ -11,12 +11,16 @@ package validator;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "validator";
+option go_package = "github.com/mwitkow/go-proto-validators;validator";
 
 // TODO(mwitkow): Email protobuf-global-extension-registry@google.com to get an extension ID.
 
 extend google.protobuf.FieldOptions {
   optional FieldValidator field = 65020;
+}
+
+extend google.protobuf.OneofOptions {
+  optional OneofValidator oneof = 65021;
 }
 
 message FieldValidator {
@@ -60,7 +64,17 @@ message FieldValidator {
   optional int64 length_gt = 14;
   // Field value of length smaller than this value.
   optional int64 length_lt = 15;
-  // Field value of integer strictly equal this value.
+  // Field value of length strictly equal to this value.
   optional int64 length_eq = 16;
+  // Requires that the value is in the enum.
+  optional bool is_in_enum = 17;
+  // Ensures that a string value is in UUID format.
+  // uuid_ver specifies the valid UUID versions. Valid values are: 0-5.
+  // If uuid_ver is 0 all UUID versions are accepted.
+  optional int32 uuid_ver = 18;
+}
 
+message OneofValidator {
+  // Require that one of the oneof fields is set.
+  optional bool required = 1;
 }
