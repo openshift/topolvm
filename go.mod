@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.22.0
+go 1.23.0
+
+toolchain go1.23.9
 
 require (
 	github.com/container-storage-interface/spec v1.9.0
@@ -20,7 +22,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.17.0
 	go.uber.org/zap v1.26.0
-	golang.org/x/sys v0.19.0
+	golang.org/x/sys v0.33.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.33.0
@@ -102,16 +104,16 @@ require (
 	go.opentelemetry.io/otel/trace v1.19.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/term v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.20.0 // indirect
+	golang.org/x/tools v0.34.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230913181813-007df8e322eb // indirect
