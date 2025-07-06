@@ -6,7 +6,7 @@ require (
 	github.com/container-storage-interface/spec v1.6.0
 	github.com/cybozu-go/log v1.6.0
 	github.com/cybozu-go/well v1.10.0
-	github.com/go-logr/logr v1.2.3
+	github.com/go-logr/logr v1.4.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/go-cmp v0.5.9
 	github.com/kubernetes-csi/csi-test/v5 v5.0.0
@@ -25,7 +25,7 @@ require (
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.3
-	k8s.io/klog/v2 v2.80.1
+	k8s.io/klog/v2 v2.130.1
 	k8s.io/mount-utils v0.26.3
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.6
