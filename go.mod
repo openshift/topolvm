@@ -3,7 +3,7 @@ module github.com/topolvm/topolvm
 go 1.20
 
 require (
-	github.com/container-storage-interface/spec v1.6.0
+	github.com/container-storage-interface/spec v1.11.0
 	github.com/cybozu-go/log v1.6.0
 	github.com/cybozu-go/well v1.10.0
 	github.com/go-logr/logr v1.2.3
@@ -35,7 +35,7 @@ require (
 
 require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230711160842-782d3b101e98 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230803162519-f966b187b2e5 // indirect
 )
 
 require (
@@ -103,7 +103,7 @@ require (
 	golang.org/x/tools v0.10.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230711160842-782d3b101e98 // indirect
+	google.golang.org/genproto v0.0.0-20230726155614-23370e0ffb3e // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
