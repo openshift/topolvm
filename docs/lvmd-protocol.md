@@ -16,6 +16,7 @@
     - [LogicalVolume](#proto.LogicalVolume)
     - [RemoveLVRequest](#proto.RemoveLVRequest)
     - [ResizeLVRequest](#proto.ResizeLVRequest)
+    - [ResizeLVResponse](#proto.ResizeLVResponse)
     - [ThinPoolItem](#proto.ThinPoolItem)
     - [WatchItem](#proto.WatchItem)
     - [WatchResponse](#proto.WatchResponse)
@@ -47,7 +48,6 @@ Represents the input for CreateLV.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The logical volume name. |
-| size_gb | [uint64](#uint64) |  | **Deprecated.** Volume size in GiB. |
 | tags | [string](#string) | repeated | Tags to add to the volume during creation |
 | device_class | [string](#string) |  |  |
 | lvcreate_option_class | [string](#string) |  |  |
@@ -85,7 +85,6 @@ Represents the response of CreateLV.
 | tags | [string](#string) | repeated | Tags to add to the volume during creation |
 | device_class | [string](#string) |  |  |
 | source_volume | [string](#string) |  | Source lv of snapshot. |
-| size_gb | [uint64](#uint64) |  | **Deprecated.** Volume size in GiB. |
 | access_type | [string](#string) |  | Access type of snapshot |
 | size_bytes | [int64](#int64) |  | Volume size in canonical CSI bytes. |
 
@@ -188,7 +187,6 @@ Represents a logical volume.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The logical volume name. |
-| size_gb | [uint64](#uint64) |  | **Deprecated.** Volume size in GiB. |
 | dev_major | [uint32](#uint32) |  | Device major number. |
 | dev_minor | [uint32](#uint32) |  | Device minor number. |
 | tags | [string](#string) | repeated | Tags to add to the volume during creation |
@@ -223,15 +221,29 @@ Represents the input for RemoveLV.
 Represents the input for ResizeLV.
 
 The volume must already exist.
-The volume size will be set to exactly &#34;size_gb&#34;.
+The volume size will be expanded to at least &#34;size_bytes&#34;.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The logical volume name. |
-| size_gb | [uint64](#uint64) |  | **Deprecated.** Volume size in GiB. |
 | size_bytes | [int64](#int64) |  | Volume size in canonical CSI bytes. |
 | device_class | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="proto.ResizeLVResponse"></a>
+
+### ResizeLVResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| size_bytes | [int64](#int64) |  | Volume size in canonical CSI bytes. |
 
 
 
@@ -305,7 +317,7 @@ Service to manage logical volumes of the volume group.
 | ----------- | ------------ | ------------- | ------------|
 | CreateLV | [CreateLVRequest](#proto.CreateLVRequest) | [CreateLVResponse](#proto.CreateLVResponse) | Create a logical volume. |
 | RemoveLV | [RemoveLVRequest](#proto.RemoveLVRequest) | [Empty](#proto.Empty) | Remove a logical volume. |
-| ResizeLV | [ResizeLVRequest](#proto.ResizeLVRequest) | [Empty](#proto.Empty) | Resize a logical volume. |
+| ResizeLV | [ResizeLVRequest](#proto.ResizeLVRequest) | [ResizeLVResponse](#proto.ResizeLVResponse) | Resize a logical volume. |
 | CreateLVSnapshot | [CreateLVSnapshotRequest](#proto.CreateLVSnapshotRequest) | [CreateLVSnapshotResponse](#proto.CreateLVSnapshotResponse) |  |
 
 
