@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
-	github.com/go-logr/logr v1.2.4
-	github.com/go-logr/zapr v1.2.4
+	github.com/go-logr/logr v1.3.0
+	github.com/go-logr/zapr v1.3.0
 	github.com/golang/protobuf v1.5.4
 	github.com/google/go-cmp v0.5.9
 	github.com/kubernetes-csi/csi-test/v5 v5.0.0
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.17.0
-	go.uber.org/zap v1.25.0
+	go.uber.org/zap v1.26.0
 	golang.org/x/sys v0.19.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
