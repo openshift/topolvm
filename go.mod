@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
-	github.com/go-logr/logr v1.2.4
+	github.com/go-logr/logr v1.4.1
 	github.com/go-logr/zapr v1.2.4
 	github.com/golang/protobuf v1.5.4
 	github.com/google/go-cmp v0.5.9
@@ -27,7 +27,7 @@ require (
 	k8s.io/api v0.28.6
 	k8s.io/apimachinery v0.28.6
 	k8s.io/client-go v0.28.6
-	k8s.io/klog/v2 v2.100.1
+	k8s.io/klog/v2 v2.130.1
 	k8s.io/mount-utils v0.28.6
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2
 	sigs.k8s.io/controller-runtime v0.16.3
