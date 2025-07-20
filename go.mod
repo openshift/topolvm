@@ -3,7 +3,7 @@ module github.com/topolvm/topolvm
 go 1.22.0
 
 require (
-	github.com/container-storage-interface/spec v1.9.0
+	github.com/container-storage-interface/spec v1.11.0
 	github.com/go-logr/logr v1.4.1
 	github.com/go-logr/zapr v1.3.0
 	github.com/golang/protobuf v1.5.4
