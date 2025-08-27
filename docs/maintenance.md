@@ -27,6 +27,7 @@ Edit the following files.
 - `versions.mk`
 - `.github/workflows/e2e-k8s-incluster-lvmd.yaml`
 - `.github/workflows/e2e-k8s-workflow.yaml`
+- `test/e2e/README.md`
 
 Next, we should update `go.mod` by the following commands.
 Please note that Kubernetes v1 corresponds with v0 for the release tags. For example, v1.17.2 corresponds with the `v0.17.2` tag.
@@ -81,6 +82,7 @@ Edit the following files.
 
 TopoLVM does not use all the sidecars listed [here](https://kubernetes-csi.github.io/docs/sidecar-containers.html).
 Have a look at `csi-sidecars.mk` first and understand what sidecars are actually being used.
+The [checklist that triggers the update operation](https://github.com/topolvm/topolvm/blob/main/.github/ISSUE_TEMPLATE/update_supporting_kubernetes.md) does not include `liveness probe` and `node driver registrar`, but they will also be updated.
 
 Check the release pages of the sidecars under [kubernetes-csi](https://github.com/kubernetes-csi) one by one and choose the latest version for each sidecar which satisfies both "Minimal Kubernetes version" and "Supported CSI spec versions".
 
@@ -111,6 +113,8 @@ The following tools depend on kubernetes, use appropriate version associating to
 
 - [kind](https://github.com/kubernetes-sigs/kind/releases)
 - [minikube](https://github.com/kubernetes/minikube/releases)
+
+Update `cri-dockerd` to a version specified in CRI_DOCKERD_VERSION in [the minikube Dockerfile](https://github.com/kubernetes/minikube/blob/master/deploy/kicbase/Dockerfile) or newer.
 
 #### Depending Modules
 
