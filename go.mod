@@ -15,8 +15,8 @@ require (
 	github.com/prometheus/client_model v0.4.0
 	github.com/prometheus/common v0.42.0
 	github.com/pseudomuto/protoc-gen-doc v1.5.0
-	github.com/spf13/cobra v1.7.0
-	github.com/spf13/pflag v1.0.5
+	github.com/spf13/cobra v1.10.1
+	github.com/spf13/pflag v1.0.9
 	github.com/spf13/viper v1.10.1
 	golang.org/x/sys v0.19.0
 	google.golang.org/grpc v1.58.3
