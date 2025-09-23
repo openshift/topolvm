@@ -16,9 +16,11 @@
       ],
       "autoApprove": true,
       "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "rebase",
       "enabled": true,
       "includePaths": [
-        ".konflux/**"
+        "release/**"
       ],
       "matchManagers": [
         "custom.regex"
@@ -26,14 +28,18 @@
       "matchUpdateTypes": [
         "digest"
       ],
-      "platformAutomerge": true
+      "platformAutomerge": true,
+      "commitMessagePrefix": "NO-JIRA:",
+      "schedule": [
+        "at any time"
+      ]
     },
     {
       "matchUpdateTypes": ["minor"],
       "enabled": false
     }
   ],
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 0,
   "pruneBranchAfterAutomerge": true,
   "pruneStaleBranches": true,
   "semanticCommits": "enabled",
@@ -53,7 +59,10 @@
     ],
     "ignoreTests": true,
     "includePaths": [
-      ".tekton/**"
-    ]
+      ".tekton/**",
+      ".konflux/**"
+    ],
+    "platformAutomerge": true,
+    "commitMessagePrefix": "NO-JIRA:"
   }
 }
