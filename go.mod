@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.22
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
@@ -30,8 +32,10 @@ require (
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491
 	sigs.k8s.io/controller-runtime v0.15.2
 	sigs.k8s.io/controller-tools v0.12.1
-	sigs.k8s.io/yaml v1.3.0
+	sigs.k8s.io/yaml v1.6.0
 )
+
+require go.yaml.in/yaml/v2 v2.4.2 // indirect
 
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
