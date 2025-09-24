@@ -34,9 +34,14 @@ require (
 )
 
 require (
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+)
+
+require (
 	github.com/Masterminds/semver v1.4.2 // indirect
-	github.com/Masterminds/sprig v2.15.0+incompatible // indirect
-	github.com/aokoli/goutils v1.0.1 // indirect
+	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cybozu-go/log v1.6.0 // indirect
