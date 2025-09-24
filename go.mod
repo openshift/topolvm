@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.21.0
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
@@ -96,7 +98,7 @@ require (
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
-	github.com/spf13/cast v1.5.1 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
