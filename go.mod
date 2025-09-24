@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.22.0
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
@@ -12,7 +14,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.9.5
 	github.com/onsi/gomega v1.27.7
 	github.com/prometheus/client_golang v1.15.1
-	github.com/prometheus/client_model v0.4.0
+	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.42.0
 	github.com/pseudomuto/protoc-gen-doc v1.5.0
 	github.com/spf13/cobra v1.7.0
@@ -21,7 +23,7 @@ require (
 	golang.org/x/sys v0.19.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.6
 	k8s.io/api v0.27.3
 	k8s.io/apimachinery v0.27.3
 	k8s.io/client-go v0.27.3
