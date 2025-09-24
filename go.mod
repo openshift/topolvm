@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.22
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
@@ -30,10 +32,11 @@ require (
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.6
 	sigs.k8s.io/controller-tools v0.11.3
-	sigs.k8s.io/yaml v1.3.0
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230711160842-782d3b101e98 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
 )
