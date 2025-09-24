@@ -1,6 +1,8 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.24.0
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
@@ -96,13 +98,12 @@ require (
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/oauth2 v0.10.0 // indirect
+	golang.org/x/oauth2 v0.31.0 // indirect
 	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230711160842-782d3b101e98 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
