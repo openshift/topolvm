@@ -1,13 +1,15 @@
 module github.com/topolvm/topolvm
 
-go 1.20
+go 1.23
+
+toolchain go1.24.6
 
 require (
 	github.com/container-storage-interface/spec v1.6.0
 	github.com/go-logr/logr v1.2.4
 	github.com/go-logr/zapr v1.2.4
 	github.com/golang/protobuf v1.5.4
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.7.0
 	github.com/kubernetes-csi/csi-test/v5 v5.0.0
 	github.com/kubernetes-csi/external-snapshotter/client/v6 v6.3.0
 	github.com/onsi/ginkgo/v2 v2.11.0
@@ -23,7 +25,7 @@ require (
 	golang.org/x/sys v0.19.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.10
 	k8s.io/api v0.28.6
 	k8s.io/apimachinery v0.28.6
 	k8s.io/client-go v0.28.6
