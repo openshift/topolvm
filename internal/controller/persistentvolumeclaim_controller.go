@@ -53,7 +53,7 @@ func (r *PersistentVolumeClaimReconciler) Reconcile(ctx context.Context, req ctr
 		return ctrl.Result{}, err
 	} else if removed {
 		return ctrl.Result{
-			Requeue: true,
+			RequeueAfter: requeueIntervalForSimpleUpdate,
 		}, nil
 	}
 
@@ -68,7 +68,7 @@ func (r *PersistentVolumeClaimReconciler) Reconcile(ctx context.Context, req ctr
 	}
 
 	result, err := r.deletePodsUsingDeletingPVC(ctx, pvc)
-	if result.Requeue || err != nil {
+	if result.RequeueAfter != 0 || err != nil {
 		return result, err
 	}
 
@@ -153,7 +153,6 @@ func (r *PersistentVolumeClaimReconciler) deletePodsUsingDeletingPVC(ctx context
 	// Requeue until other finalizers complete their jobs.
 	if len(pvc.Finalizers) != 1 {
 		return ctrl.Result{
-			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
 		}, nil
 	}
