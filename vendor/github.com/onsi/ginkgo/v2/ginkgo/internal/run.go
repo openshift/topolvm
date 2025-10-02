@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"syscall"
@@ -63,6 +64,12 @@ func checkForNoTestsWarning(buf *bytes.Buffer) bool {
 }
 
 func runGoTest(suite TestSuite, cliConfig types.CLIConfig, goFlagsConfig types.GoFlagsConfig) TestSuite {
+	// As we run the go test from the suite directory, make sure the cover profile is absolute
+	// and placed into the expected output directory when one is configured.
+	if goFlagsConfig.Cover && !filepath.IsAbs(goFlagsConfig.CoverProfile) {
+		goFlagsConfig.CoverProfile = AbsPathForGeneratedAsset(goFlagsConfig.CoverProfile, suite, cliConfig, 0)
+	}
+
 	args, err := types.GenerateGoTestRunArgs(goFlagsConfig)
 	command.AbortIfError("Failed to generate test run arguments", err)
 	cmd, buf := buildAndStartCommand(suite, args, true)
@@ -99,6 +106,9 @@ func runSerial(suite TestSuite, ginkgoConfig types.SuiteConfig, reporterConfig t
 	}
 	if reporterConfig.JSONReport != "" {
 		reporterConfig.JSONReport = AbsPathForGeneratedAsset(reporterConfig.JSONReport, suite, cliConfig, 0)
+	}
+	if reporterConfig.GoJSONReport != "" {
+		reporterConfig.GoJSONReport = AbsPathForGeneratedAsset(reporterConfig.GoJSONReport, suite, cliConfig, 0)
 	}
 	if reporterConfig.JUnitReport != "" {
 		reporterConfig.JUnitReport = AbsPathForGeneratedAsset(reporterConfig.JUnitReport, suite, cliConfig, 0)
@@ -171,6 +181,9 @@ func runParallel(suite TestSuite, ginkgoConfig types.SuiteConfig, reporterConfig
 
 	if reporterConfig.JSONReport != "" {
 		reporterConfig.JSONReport = AbsPathForGeneratedAsset(reporterConfig.JSONReport, suite, cliConfig, 0)
+	}
+	if reporterConfig.GoJSONReport != "" {
+		reporterConfig.GoJSONReport = AbsPathForGeneratedAsset(reporterConfig.GoJSONReport, suite, cliConfig, 0)
 	}
 	if reporterConfig.JUnitReport != "" {
 		reporterConfig.JUnitReport = AbsPathForGeneratedAsset(reporterConfig.JUnitReport, suite, cliConfig, 0)
