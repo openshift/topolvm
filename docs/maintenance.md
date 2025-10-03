@@ -99,6 +99,21 @@ For example, see https://github.com/kubernetes-csi/external-provisioner/blob/mas
 
 If the `external-snapshotter` sidecar is updated, you also update `go.mod` and source code accordingly.
 
+#### cert-manager
+
+As for cert-manager, we have a policy to use LTS release. Check [the current LTS release](https://cert-manager.io/docs/releases/#long-term-support-releases) and update the cert-manager version if necessary.
+
+To update the cert-manager version, change the version in `charts/topolvm/Chart.yaml`. Then, run a following command.
+
+```console
+$ bin/helm dependency update charts/topolvm
+```
+
+Please also update the version in the following files.
+
+- `versions.mk`
+- `docs/getting-started.md`
+
 #### Depending Tools
 
 The depending tools versions are specified in `versions.mk`.
@@ -123,6 +138,12 @@ Read [kubernetes go.mod](https://github.com/kubernetes/kubernetes/blob/master/go
 #### Update Upstream Information
 
 Visit [the upstream web page](https://kubernetes-csi.github.io/docs/drivers.html) to check current TopoLVM information. If some information is old, create PR to update the information
+
+#### Update Ubuntu and Debian
+
+If the support term for using Ubuntu is about to expire, update the versions. The Debian version in the `Dockerfile` should also be updated. The target version can be found in the updated Ubuntu image at `/etc/debian_version`.
+
+Note that we use the oldest supported Ubuntu LTS version for as long as possible to ensure compatibility between the host kernel and the mkfs tools in the image. See also `docs/limitations.md`.
 
 #### Final Check
 
