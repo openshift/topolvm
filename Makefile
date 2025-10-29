@@ -7,6 +7,7 @@ CONTROLLER_GEN := $(BINDIR)/controller-gen
 CONTAINER_STRUCTURE_TEST := $(BINDIR)/container-structure-test
 GOLANGCI_LINT = $(BINDIR)/golangci-lint
 PROTOC := PATH=$(BINDIR):$(PATH) $(BINDIR)/protoc -I=$(shell pwd)/include:.
+YQ := $(BINDIR)/yq
 PACKAGES := unzip lvm2 xfsprogs thin-provisioning-tools patch
 ENVTEST_ASSETS_DIR := $(shell pwd)/testbin
 
@@ -52,6 +53,9 @@ CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm:devel
 ifeq ($(STRUCTURE_TEST_TARGET),with-sidecar)
 CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm-with-sidecar:devel
 endif
+
+export ENVTEST_KUBERNETES_VERSION
+export ENVTEST_ASSETS_DIR
 
 ##@ General
 
@@ -132,14 +136,12 @@ lint-fix: ## Run golangci-lint linter and perform fixes
 test: lint ## Run lint and unit tests.
 	go install ./...
 
-	mkdir -p $(ENVTEST_ASSETS_DIR)
-	source <($(BINDIR)/setup-envtest use $(ENVTEST_KUBERNETES_VERSION) --bin-dir=$(ENVTEST_ASSETS_DIR) -p env); GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn go test -count=1 -race -v --timeout=120s ./...
+	GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn go test -count=1 -race -v --timeout=120s ./...
 
 groupname-test: ## Run unit tests that depends on the groupname.
 	go install ./...
 
-	mkdir -p $(ENVTEST_ASSETS_DIR)
-	source <($(BINDIR)/setup-envtest use $(ENVTEST_KUBERNETES_VERSION) --bin-dir=$(ENVTEST_ASSETS_DIR) -p env); GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn TEST_LEGACY=true go test -count=1 -race -v --timeout=60s ./internal/client/*
+	GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn TEST_LEGACY=true go test -count=1 -race -v --timeout=60s ./internal/client/*
 	TEST_LEGACY=true go test -count=1 -race -v --timeout=60s ./constants*.go
 
 .PHONY: clean
@@ -272,7 +274,6 @@ install-helm-docs: | $(BINDIR)
 .PHONY: tools
 tools: install-kind install-container-structure-test install-helm install-helm-docs | $(BINDIR) ## Install development tools.
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell dirname $(GOLANGCI_LINT)) $(GOLANGCI_LINT_VERSION)
-	GOBIN=$(BINDIR) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@$(ENVTEST_BRANCH)
 	GOBIN=$(BINDIR) go install sigs.k8s.io/controller-tools/cmd/controller-gen@v$(CONTROLLER_TOOLS_VERSION)
 
 	$(CURL) -o protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-x86_64.zip
@@ -281,6 +282,9 @@ tools: install-kind install-container-structure-test install-helm install-helm-d
 	GOBIN=$(BINDIR) go install google.golang.org/protobuf/cmd/protoc-gen-go@v$(PROTOC_GEN_GO_VERSION)
 	GOBIN=$(BINDIR) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v$(PROTOC_GEN_GO_GRPC_VERSION)
 	GOBIN=$(BINDIR) go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@v$(PROTOC_GEN_DOC_VERSION)
+	$(CURL) https://github.com/mikefarah/yq/releases/download/v$(YQ_VERSION)/yq_linux_amd64.tar.gz \
+		| tar xvz ./yq_linux_amd64 \
+		&& mv yq_linux_amd64 $(YQ)
 
 .PHONY: setup
 setup: ## Setup local environment.
