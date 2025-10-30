@@ -17,15 +17,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kubernetes_versions: ["1.32.2", "1.31.6", "1.30.10"]
+        kubernetes_versions: ["1.33.4", "1.32.8", "1.31.12"]
         test_lvmd_type: ["daemonset", "embedded"]
     env:
       KUBERNETES_VERSION: ${{ matrix.kubernetes_versions }}
       TEST_LVMD_TYPE: ${{ matrix.test_lvmd_type }}
       TEST_SCHEDULER_EXTENDER_TYPE: "none"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: "go.mod"
       - name: Set up Docker Buildx

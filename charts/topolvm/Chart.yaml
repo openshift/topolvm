@@ -4,21 +4,21 @@ type: application
 home: https://github.com/topolvm/topolvm
 name: topolvm
 description: Topolvm
-version: 15.6.0
-appVersion: 0.37.0
+version: 15.7.0
+appVersion: 0.38.0
 sources:
   - https://github.com/topolvm/topolvm
 
 dependencies:
   - name: cert-manager
     repository: https://charts.jetstack.io
-    version: ~1.12.x
+    version: ~1.17.x
     condition: cert-manager.enabled
 
 annotations:
   artifacthub.io/images: |
     - name: topolvm-with-sidecar
-      image: ghcr.io/topolvm/topolvm-with-sidecar:0.37.0
+      image: ghcr.io/topolvm/topolvm-with-sidecar:0.38.0
     - name: topolvm-with
-      image: ghcr.io/topolvm/topolvm:0.37.0
+      image: ghcr.io/topolvm/topolvm:0.38.0
   artifacthub.io/license: Apache-2.0
