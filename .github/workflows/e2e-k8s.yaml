@@ -15,14 +15,14 @@ jobs:
   build:
     runs-on: "ubuntu-22.04"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
           go-version-file: "go.mod"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: cache e2e sidecar binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             test/e2e/tmpbin
@@ -31,7 +31,7 @@ jobs:
             e2e-sidecars-
       - run: make -C test/e2e setup
       - run: make -C test/e2e topolvm.img
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@v5
         with:
           path: |
             bin
@@ -59,3 +59,10 @@ jobs:
     with:
       test_scheduler_extender_type: "deployment"
       test_legacy: "true"
+
+  storage-capacity-scoring:
+    needs: build
+    uses: ./.github/workflows/e2e-k8s-workflow.yaml
+    with:
+      test_scheduler_extender_type: "none"
+      test_legacy: "false"
