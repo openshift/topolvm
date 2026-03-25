@@ -1,11 +1,6 @@
 module github.com/topolvm/topolvm
 
-go 1.25.0
-
-// We use the same Go language version as the Kubernetes repository,
-// however building external-provisioner v6.2.0 requires Go 1.25.7 or later.
-// Therefore, we specify 1.25.9, the latest in the Go 1.25.x series.
-toolchain go1.25.9
+go 1.25.8
 
 require (
 	github.com/container-storage-interface/spec v1.10.0
@@ -29,11 +24,11 @@ require (
 	google.golang.org/grpc v1.79.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.10
-	k8s.io/api v0.35.4
-	k8s.io/apimachinery v0.35.4
-	k8s.io/client-go v0.35.4
+	k8s.io/api v0.35.0
+	k8s.io/apimachinery v0.35.0
+	k8s.io/client-go v0.35.0
 	k8s.io/klog/v2 v2.130.1
-	k8s.io/mount-utils v0.35.4
+	k8s.io/mount-utils v0.34.3
 	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
 	sigs.k8s.io/controller-runtime v0.23.3
 	sigs.k8s.io/controller-tools v0.20.1
