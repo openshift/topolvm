@@ -377,13 +377,6 @@ func (c *wrappedSubResourceClient) Create(ctx context.Context, obj client.Object
 	return fmt.Errorf("wrappedSubResourceClient.Create is not implemented")
 }
 
-func (c *wrappedSubResourceClient) Apply(ctx context.Context, obj runtime.ApplyConfiguration, opts ...client.SubResourceApplyOption) error {
-	// - This method is currently not used in TopoLVM.
-	// - To implement this method, tests are required, but there are no similar tests
-	//   implemented in the upstream code, and we will need a lot of effort to study it.
-	return fmt.Errorf("wrappedSubResourceClient.Apply is not implemented")
-}
-
 func (c *wrappedSubResourceClient) Update(ctx context.Context, obj client.Object, opts ...client.SubResourceUpdateOption) error {
 	sc := c.client.SubResource(c.subResource)
 	gvk := obj.GetObjectKind().GroupVersionKind()
