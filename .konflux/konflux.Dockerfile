@@ -46,6 +46,6 @@ LABEL summary="The Topolvm CSI and controller."
 LABEL io.k8s.display-name="LVM TopoLVM"
 LABEL io.k8s.description="LVM Storage TopoLVM based on Red Hat Enterprise Linux 9 Image"
 LABEL io.openshift.tags="lvms"
-LABEL konflux.additional-tags="${VERSION_STREAM} v${TOPOLVM_VERSION}}"
+LABEL konflux.additional-tags="${VERSION_STREAM} v${TOPOLVM_VERSION}"
 
 ENTRYPOINT [ "/hypertopolvm" ]
