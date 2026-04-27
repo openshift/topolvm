@@ -13,7 +13,7 @@ It can be considered as a specific implementation of [local persistent volumes](
 
 Our supported platform are:
 
-- Kubernetes: 1.34, 1.33, 1.32
+- Kubernetes: 1.35, 1.34, 1.33
 - Node OS: Linux with LVM2 (\*1), specifically tested on Ubuntu
 - CPU Architecture: x86 (\*2), arm64 (\*3), ppc64le (\*3), s390x (\*4)
 - Filesystems: ext4, xfs, btrfs
@@ -22,7 +22,7 @@ Our supported platform are:
 \*1 The host's Linux Kernel must be v4.9 or later which supports `rmapbt` and `reflink`, if you use xfs filesystem with an official docker image.  
 \*2 Tier1 support. The official docker images are provided and all functionalities are tested by CI.  
 \*3 Tier2 support. The official docker images are provided, but no tests run by CI.  
-\*4 Tier3 support. No docker images are provided, and no tests run by CI, but binaries are built.  
+\*4 Tier3 support. No docker images are provided, and no tests run by CI, but binaries are built.
 
 Docker images are available on [ghcr.io](https://github.com/orgs/topolvm/packages).  
 
