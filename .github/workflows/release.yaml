@@ -42,14 +42,14 @@ jobs:
   release:
     name: "release"
     needs: [prepare, build-images]
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
           go-version-file: "go.mod"
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - run: make build/lvmd TOPOLVM_VERSION=${{ needs.prepare.outputs.version }}
       - run: tar czf lvmd-${{ needs.prepare.outputs.version }}.tar.gz -C ./build lvmd
       - name: "Push branch tag"
