@@ -94,7 +94,7 @@ func testMetrics() {
 					"curl", "http://localhost:8080/metrics")
 				g.Expect(err).ShouldNot(HaveOccurred())
 
-				parser := expfmt.NewTextParser(model.LegacyValidation)
+				parser := expfmt.NewTextParser(model.UTF8Validation)
 				mfs, err = parser.TextToMetricFamilies(bytes.NewReader(stdout))
 				g.Expect(err).ShouldNot(HaveOccurred())
 			}).Should(Succeed())
@@ -180,7 +180,7 @@ func getMetricsFamily(nodeIP string) (map[string]*dto.MetricFamily, error) {
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	parser := expfmt.NewTextParser(model.LegacyValidation)
+	parser := expfmt.NewTextParser(model.UTF8Validation)
 	return parser.TextToMetricFamilies(resp.Body)
 }
 
