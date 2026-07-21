@@ -5,6 +5,9 @@ CURL := curl -sSLf
 BINDIR := $(shell pwd)/bin
 CONTROLLER_GEN := $(BINDIR)/controller-gen
 CONTAINER_STRUCTURE_TEST := $(BINDIR)/container-structure-test
+ACTIONLINT := $(BINDIR)/actionlint
+GHALINT := $(BINDIR)/ghalint
+ZIZMOR := $(BINDIR)/zizmor
 GOLANGCI_LINT = $(BINDIR)/golangci-lint
 PROTOC := PATH=$(BINDIR):$(PATH) $(BINDIR)/protoc -I=$(shell pwd)/include:.
 PACKAGES := unzip lvm2 xfsprogs thin-provisioning-tools patch
@@ -23,9 +26,11 @@ ORIGINAL_IMAGE_TAG ?=
 STRUCTURE_TEST_TARGET ?= normal
 
 PUSH ?= false
-BUILDX_PUSH_OPTIONS := "-o type=tar,dest=build/topolvm.tar"
+BUILDX_BAKE_OPTIONS := --load
+# omit --load when pushing, because it implies --load
+# and the loading will fail due to the already exists error.
 ifeq ($(PUSH),true)
-BUILDX_PUSH_OPTIONS := --push
+BUILDX_BAKE_OPTIONS := --push
 endif
 
 # Set the shell used to bash for better error handling.
@@ -48,9 +53,11 @@ define LEGACY_CRD_TEMPLATE
 endef
 export LEGACY_CRD_TEMPLATE
 
-CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm:devel
+INJECT_CRD_ANNOTATIONS := awk '/controller-gen\.kubebuilder\.io\/version:/{print; print "    {{- with .Values.crd.annotations }}"; print "    {{- toYaml . | nindent 4 }}"; print "    {{- end }}"; next}1'
+
+CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm:$(IMAGE_TAG)
 ifeq ($(STRUCTURE_TEST_TARGET),with-sidecar)
-CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm-with-sidecar:devel
+CONTAINER_STRUCTURE_TEST_IMAGE=$(IMAGE_PREFIX)topolvm-with-sidecar:$(IMAGE_TAG)
 endif
 
 export ENVTEST_KUBERNETES_VERSION
@@ -93,8 +100,8 @@ manifests: generate-legacy-api ## Generate WebhookConfiguration, ClusterRole and
 		webhook \
 		paths="./api/...;./internal/...;./cmd/..." \
 		output:crd:artifacts:config=config/crd/bases
-	cat config/crd/bases/topolvm.io_logicalvolumes.yaml | xargs -d"	" printf "$$CRD_TEMPLATE" > charts/topolvm/templates/crds/topolvm.io_logicalvolumes.yaml
-	cat config/crd/bases/topolvm.cybozu.com_logicalvolumes.yaml | xargs -d"	" printf "$$LEGACY_CRD_TEMPLATE" > charts/topolvm/templates/crds/topolvm.cybozu.com_logicalvolumes.yaml
+	cat config/crd/bases/topolvm.io_logicalvolumes.yaml | $(INJECT_CRD_ANNOTATIONS) | xargs -d"	" printf "$$CRD_TEMPLATE" > charts/topolvm/templates/crds/topolvm.io_logicalvolumes.yaml
+	cat config/crd/bases/topolvm.cybozu.com_logicalvolumes.yaml | $(INJECT_CRD_ANNOTATIONS) | xargs -d"	" printf "$$LEGACY_CRD_TEMPLATE" > charts/topolvm/templates/crds/topolvm.cybozu.com_logicalvolumes.yaml
 
 .PHONY: generate-api ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 generate-api: 
@@ -126,6 +133,18 @@ lint: ## Run lint
 	$(GOLANGCI_LINT) run
 	go vet ./...
 	test -z "$$(go vet ./... | grep -v '^vendor' | tee /dev/stderr)"
+
+.PHONY: run-actionlint
+run-actionlint: install-actionlint ## Run actionlint for GitHub workflows and actions.
+	$(ACTIONLINT)
+
+.PHONY: run-ghalint
+run-ghalint: install-ghalint ## Run ghalint for GitHub workflows and actions.
+	$(GHALINT) run && $(GHALINT) run-action
+
+.PHONY: run-zizmor
+run-zizmor: install-zizmor ## Run zizmor for GitHub workflows and actions.
+	$(ZIZMOR) .
 
 .PHONY: lint-fix
 lint-fix: ## Run golangci-lint linter and perform fixes
@@ -176,16 +195,20 @@ csi-sidecars: ## Build sidecar binaries.
 	mkdir -p build
 	make -f csi-sidecars.mk OUTPUT_DIR=build BUILD_PLATFORMS="linux $(GOARCH)"
 
-.PHONY: image
-image: image-normal image-with-sidecar ## Build topolvm images.
-
-.PHONY: image-normal
-image-normal:
-	docker buildx build --no-cache --load -t $(IMAGE_PREFIX)topolvm:devel --build-arg TOPOLVM_VERSION=$(TOPOLVM_VERSION) --target topolvm .
+.PHONY: images
+images: ## Build topolvm images.
+	IMAGE_PREFIX=$(IMAGE_PREFIX) IMAGE_TAG=$(IMAGE_TAG) TOPOLVM_VERSION=$(TOPOLVM_VERSION) \
+	docker buildx bake --load --no-cache images
 
 .PHONY: image-with-sidecar
 image-with-sidecar:
-	docker buildx build --no-cache --load -t $(IMAGE_PREFIX)topolvm-with-sidecar:devel --build-arg TOPOLVM_VERSION=$(TOPOLVM_VERSION) --target topolvm-with-sidecar .
+	IMAGE_PREFIX=$(IMAGE_PREFIX) IMAGE_TAG=$(IMAGE_TAG) TOPOLVM_VERSION=$(TOPOLVM_VERSION) \
+	docker buildx bake --load --no-cache topolvm-with-sidecar
+
+.PHONY: multi-platform-images
+multi-platform-images: ## Build or push multi-platform topolvm images.
+	IMAGE_PREFIX=$(IMAGE_PREFIX) IMAGE_TAG=$(IMAGE_TAG) TOPOLVM_VERSION=$(TOPOLVM_VERSION) \
+	docker buildx bake --no-cache $(BUILDX_BAKE_OPTIONS) multi-platform-images
 
 .PHONY: container-structure-test
 container-structure-test: ## Run container-structure-test.
@@ -197,33 +220,6 @@ ifeq ($(STRUCTURE_TEST_TARGET),with-sidecar)
 		--image $(CONTAINER_STRUCTURE_TEST_IMAGE) \
 		--config container-structure-test-with-sidecar.yaml
 endif
-
-.PHONY: create-docker-container
-create-docker-container: ## Create docker-container.
-	docker buildx create --use
-
-.PHONY: multi-platform-images
-multi-platform-images: multi-platform-image-normal multi-platform-image-with-sidecar ## Build or push multi-platform topolvm images.
-
-.PHONY: multi-platform-image-normal
-multi-platform-image-normal:
-	mkdir -p build
-	docker buildx build --no-cache $(BUILDX_PUSH_OPTIONS) \
-		--platform linux/amd64,linux/arm64/v8,linux/ppc64le \
-		-t $(IMAGE_PREFIX)topolvm:$(IMAGE_TAG) \
-		--build-arg TOPOLVM_VERSION=$(TOPOLVM_VERSION) \
-		--target topolvm \
-		.
-
-.PHONY: multi-platform-image-with-sidecar
-multi-platform-image-with-sidecar:
-	mkdir -p build
-	docker buildx build --no-cache $(BUILDX_PUSH_OPTIONS) \
-		--platform linux/amd64,linux/arm64/v8,linux/ppc64le \
-		-t $(IMAGE_PREFIX)topolvm-with-sidecar:$(IMAGE_TAG) \
-		--build-arg TOPOLVM_VERSION=$(TOPOLVM_VERSION) \
-		--target topolvm-with-sidecar \
-		.
 
 .PHONY: tag
 tag: ## Tag topolvm images.
@@ -260,6 +256,22 @@ install-container-structure-test: | $(BINDIR)
 	$(CURL) -o $(CONTAINER_STRUCTURE_TEST) \
 		https://github.com/GoogleContainerTools/container-structure-test/releases/download/v$(CONTAINER_STRUCTURE_TEST_VERSION)/container-structure-test-linux-amd64 \
     && chmod +x $(CONTAINER_STRUCTURE_TEST)
+
+.PHONY: install-actionlint
+install-actionlint: | $(BINDIR)
+	GOBIN=$(BINDIR) go install github.com/rhysd/actionlint/cmd/actionlint@$(ACTIONLINT_VERSION)
+
+.PHONY: install-ghalint
+install-ghalint: | $(BINDIR)
+	GOBIN=$(BINDIR) go install github.com/suzuki-shunsuke/ghalint/cmd/ghalint@$(GHALINT_VERSION)
+
+.PHONY: install-zizmor
+install-zizmor: | $(BINDIR)
+	{ tmp_archive=$$(mktemp) && \
+	  $(CURL) -o $$tmp_archive https://github.com/zizmorcore/zizmor/releases/download/v$(ZIZMOR_VERSION)/zizmor-x86_64-unknown-linux-gnu.tar.gz && \
+	  echo "$(ZIZMOR_SHA256)  $$tmp_archive" | sha256sum -c && \
+	  tar xzf $$tmp_archive -C $(BINDIR) zizmor && \
+	  rm -f $$tmp_archive; }
 
 .PHONY: install-helm
 install-helm: | $(BINDIR)

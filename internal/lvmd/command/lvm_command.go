@@ -73,7 +73,11 @@ func callLVMInto(ctx context.Context, into any, logVerbosity int, args ...string
 func callLVMStreamed(ctx context.Context, logVerbosity int, args ...string) (io.ReadCloser, error) {
 	ctx = log.IntoContext(ctx, log.FromContext(ctx).WithCallDepth(1))
 	wholeCommand := slices.Concat(lvmCommandPrefix, args)
-	cmd := exec.Command(wholeCommand[0], wholeCommand[1:]...)
+	// Use CommandContext so kubelet timing out on an RPC (default 2 min
+	// csiTimeout) cancels the underlying vgs/lvs/... subprocess instead
+	// of leaving it running on the node. exec.Command ignores ctx and
+	// accumulates orphans under repeated timeout scenarios (#1163).
+	cmd := exec.CommandContext(ctx, wholeCommand[0], wholeCommand[1:]...)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "LC_ALL=C")
 	return runCommand(ctx, logVerbosity, cmd)
@@ -111,9 +115,12 @@ type commandReadCloser struct {
 	stderr io.ReadCloser
 }
 
-// Close closes stdout and stderr and waits for the command to exit. Close
-// should not be called before all reads from stdout have completed.
+// Close drains any unread stdout, reads stderr, and waits for the command to exit.
 func (p commandReadCloser) Close() error {
+	// Drain stdout before Wait() to prevent blocking when the caller stopped
+	// reading early and the child has more output than the pipe buffer.
+	_, _ = io.Copy(io.Discard, p.ReadCloser)
+
 	// Read the stderr output after the read has finished since we are sure by then the command must have run.
 	stderr, err := io.ReadAll(p.stderr)
 	if err != nil {
