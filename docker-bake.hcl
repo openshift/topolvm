@@ -10,14 +10,6 @@ variable "TOPOLVM_VERSION" {
   default = "devel"
 }
 
-variable "GOPROXY" {
-  default = ""
-}
-
-variable "NETRC_PATH" {
-  default = ""
-}
-
 variable "PLATFORMS" {
   default = ["linux/amd64", "linux/arm64/v8", "linux/ppc64le"]
 }
@@ -40,10 +32,7 @@ target "_common" {
 
   args = {
     TOPOLVM_VERSION = TOPOLVM_VERSION
-    GOPROXY          = GOPROXY
   }
-
-  secret = NETRC_PATH != "" ? ["id=netrc,src=${NETRC_PATH}"] : []
 }
 
 target "topolvm" {
