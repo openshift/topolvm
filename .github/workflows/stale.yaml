@@ -12,13 +12,14 @@ on:
 jobs:
   stale:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
     permissions:
       issues: write
       pull-requests: write
 
     steps:
-    - uses: actions/stale@v10
+    - uses: actions/stale@eb5cf3af3ac0a1aa4c9c45633dd1ae542a27a899 # v10.3.0
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 30
@@ -42,4 +43,3 @@ jobs:
         stale-pr-label: "stale"
         exempt-issue-labels: "keepalive,update kubernetes"
         exempt-pr-labels: "keepalive"
-        exempt-draft-pr: true

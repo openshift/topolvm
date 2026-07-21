@@ -21,7 +21,7 @@ DOMAIN_NAME := topolvm.io
 
 BUILD_IMAGE_FLAG :=
 ifeq ($(BUILD_IMAGE),true)
-BUILD_IMAGE_FLAG := --set image.tag=devel
+BUILD_IMAGE_FLAG := --set image.reference=devel
 endif
 
 $(KUBECTL):
@@ -30,7 +30,7 @@ $(KUBECTL):
 	chmod 755 $(KUBECTL)
 
 build/topolvm.img: $(GO_FILES)
-	$(MAKE) -C .. image-with-sidecar IMAGE_PREFIX=ghcr.io/topolvm/
+	$(MAKE) -C .. image-with-sidecar IMAGE_PREFIX=ghcr.io/topolvm/ IMAGE_TAG=devel
 	docker save -o $@ ghcr.io/topolvm/topolvm-with-sidecar:devel
 
 .PHONY: run

@@ -456,3 +456,4 @@ func (c *wrappedSubResourceClient) Patch(ctx context.Context, obj client.Object,
 	}
 	return sc.Patch(ctx, obj, patch, opts...)
 }
+

@@ -4,9 +4,12 @@ on:
   pull_request:
     types: [synchronize, opened, reopened, labeled, unlabeled]
 
+permissions: {}
+
 jobs:
   label-do-not-merge:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - run: |-
           if [ "${{ contains(join(github.event.pull_request.labels.*.name, ', '), 'do-not-merge') }}" = "true" ]; then
