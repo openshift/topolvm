@@ -21,7 +21,7 @@ jobs:
       - name: "Install Helm"
         uses: azure/setup-helm@v5
         with:
-          version: "v3.5.0"
+          version: "v4.2.4"
 
       # Add depending repository for helm to avoid the error below.
       # `Error: no repository definition for https://charts.jetstack.io`
