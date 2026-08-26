@@ -39,6 +39,7 @@ USER 65532:65532
 
 LABEL maintainer="${MAINTAINER}"
 LABEL com.redhat.component="topolvm-container"
+LABEL com.redhat.cpe="cpe:/a:redhat:lvms:4.14::el9"
 LABEL name="lvms4/topolvm-rhel9"
 LABEL version="${TOPOLVM_VERSION}"
 LABEL description="LVM TopoLVM"
