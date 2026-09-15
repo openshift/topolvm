@@ -16,6 +16,12 @@ ENVTEST_ASSETS_DIR := $(shell pwd)/testbin
 GO_FILES=$(shell find -name '*.go' -not -name '*_test.go')
 GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
+GOPROXY ?= $(shell go env GOPROXY)
+NETRC_PATH := $(wildcard $(HOME)/.netrc)
+BUILDX_BAKE_ALLOW :=
+ifneq ($(NETRC_PATH),)
+BUILDX_BAKE_ALLOW := --allow=fs.read='$(NETRC_PATH)'
+endif
 GOFLAGS =
 export GOFLAGS
 
@@ -284,7 +290,7 @@ install-helm-docs: | $(BINDIR)
 
 .PHONY: tools
 tools: install-kind install-container-structure-test install-helm install-helm-docs | $(BINDIR) ## Install development tools.
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell dirname $(GOLANGCI_LINT)) $(GOLANGCI_LINT_VERSION)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/$(GOLANGCI_LINT_VERSION)/install.sh | sh -s -- -b $(shell dirname $(GOLANGCI_LINT)) $(GOLANGCI_LINT_VERSION)
 	GOBIN=$(BINDIR) go install sigs.k8s.io/controller-tools/cmd/controller-gen@v$(CONTROLLER_TOOLS_VERSION)
 
 	$(CURL) -o protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-x86_64.zip
