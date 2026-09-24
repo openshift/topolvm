@@ -93,8 +93,7 @@ func testReadWriteOncePod() {
 				//nolint:lll
 				if c.Type == corev1.PodScheduled &&
 					c.Status == corev1.ConditionFalse &&
-					(strings.Contains(c.Message, "node has pod using PersistentVolumeClaim with the same name and ReadWriteOncePod access mode") ||
-						strings.Contains(c.Message, "node(s) unavailable due to PersistentVolumeClaim with ReadWriteOncePod access mode already in-use by another pod")) {
+					strings.Contains(c.Message, "node(s) unavailable due to PersistentVolumeClaim with ReadWriteOncePod access mode already in-use by another pod") {
 					return nil
 				}
 			}
