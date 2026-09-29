@@ -7,7 +7,7 @@
 
 ## Installation
 
-See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.0.0/docs/getting-started.md).
+See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.2.0/docs/getting-started.md).
 
 ## Values
 
@@ -23,6 +23,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | controller.minReadySeconds | int | `nil` | Specify minReadySeconds. |
 | controller.nodeFinalize.skipped | bool | `false` | Skip automatic cleanup of PhysicalVolumeClaims when a Node is deleted. |
 | controller.nodeSelector | object | `{}` | Specify nodeSelector. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| controller.podAnnotations | object | `{}` | Annotations to be set on the controller pod. |
 | controller.podDisruptionBudget.enabled | bool | `true` | Specify podDisruptionBudget enabled. |
 | controller.podLabels | object | `{}` | Additional labels to be set on the controller pod. |
 | controller.priorityClassName | string | `nil` | Specify priorityClassName. |
@@ -58,7 +59,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | image.csi.nodeDriverRegistrar | string | `nil` | Specify csi-node-driver-registrar: image. If not specified, `ghcr.io/topolvm/topolvm-with-sidecar:{{ .Values.image.reference }}` will be used. |
 | image.pullPolicy | string | `nil` | TopoLVM image pullPolicy. |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets. |
-| image.reference | string | `"0.41.0@sha256:5faf5b94557516ae0f6fa7d329a5a4305e22aa2dc464af7641b31f2aca618036"` | TopoLVM image reference (a tag and/or a digest, e.g. "0.41.0@sha256:...") to use. |
+| image.reference | string | `"0.41.1@sha256:70548dbe0c6addcccf79a557f29e95db2e6dc2cba2102988c91f30086004d0fc"` | TopoLVM image reference (a tag and/or a digest, e.g. "0.41.0@sha256:...") to use. |
 | image.repository | string | `"ghcr.io/topolvm/topolvm-with-sidecar"` | TopoLVM image repository to use. |
 | livenessProbe.csi_registrar | object | `{"failureThreshold":null,"initialDelaySeconds":10,"periodSeconds":60,"timeoutSeconds":3}` | Specify livenessProbe. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | livenessProbe.lvmd | object | `{"failureThreshold":null,"initialDelaySeconds":10,"periodSeconds":60,"timeoutSeconds":3}` | Specify livenessProbe. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
@@ -108,6 +109,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | node.metrics.annotations | object | `{"prometheus.io/port":"metrics"}` | Annotations for Scrape used by Prometheus. |
 | node.metrics.enabled | bool | `true` | If true, enable scraping of metrics by Prometheus. |
 | node.nodeSelector | object | `{}` | Specify nodeSelector. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| node.podAnnotations | object | `{}` | Annotations to be set on the node pods, merged with `node.metrics.annotations` and takes precedence over it. |
 | node.podLabels | object | `{}` | Additional labels to be set on the node pods. |
 | node.podSecurityContext | object | `{}` | Pod securityContext. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | node.priorityClassName | string | `nil` | Specify priorityClassName. |
