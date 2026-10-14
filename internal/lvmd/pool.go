@@ -3,7 +3,6 @@ package lvmd
 import (
 	"context"
 	"fmt"
-	"math"
 
 	"github.com/topolvm/topolvm/internal/lvmd/command"
 	lvmdTypes "github.com/topolvm/topolvm/pkg/lvmd/types"
@@ -23,7 +22,7 @@ func storagePoolForDeviceClass(ctx context.Context, dc *lvmdTypes.DeviceClass) (
 	}
 	switch dc.Type {
 	case lvmdTypes.TypeThick:
-		return &volumeGroupAdapter{vg, GetOverheadFactor(dc)}, nil
+		return &volumeGroupAdapter{vg}, nil
 	case lvmdTypes.TypeThin:
 		pool, err := vg.FindPool(ctx, dc.ThinPoolConfig.Name)
 		if err != nil {
@@ -51,16 +50,8 @@ func (p *thinPoolAdapter) Free(ctx context.Context) (uint64, error) {
 
 type volumeGroupAdapter struct {
 	*command.VolumeGroup
-	overheadFactor float64
 }
 
 func (vg *volumeGroupAdapter) Free(_ context.Context) (uint64, error) {
-	free, err := vg.VolumeGroup.Free()
-	if err != nil {
-		return 0, err
-	}
-	if vg.overheadFactor > 1.0 {
-		free = uint64(math.Floor(float64(free) / vg.overheadFactor))
-	}
-	return free, nil
+	return vg.VolumeGroup.Free()
 }
