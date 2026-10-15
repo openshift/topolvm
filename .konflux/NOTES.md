@@ -29,34 +29,29 @@ Differences from the 4.14 scaffolding:
   `event == "push" && target_branch == ...` guard rather than being part of the
   path list.
 
-## TODO before the first Konflux build: generate `rpms.lock.yaml`
+## RPM lockfile
 
-**`.konflux/rpms.lock.yaml` is intentionally NOT included in this change.**
+`rpms.lock.yaml` includes RHEL 8 binary and source RPMs for `aarch64`, `x86_64`,
+`s390x`, and `ppc64le`, matching `rpms.in.yaml`.
 
-It is an architecture- and content-specific lockfile that must be resolved against
-the **el8** repositories. Generating it requires Red Hat Subscription Manager
-credentials and a `registry.redhat.io` pull secret, neither of which were available
-to the automation that produced this backport. Committing a lockfile resolved
-against el9 content would produce an unbuildable or silently wrong image.
+The initial lockfile comes from the lvm-operator `release/operator/rpms.lock.yaml`
+in commit `90a527adc8aa4c7fc5ac724918dc0b0432f03ae3`. Both components use the same
+RPM inputs and the same pinned UBI 8 minimal base image. The input file is copied
+from that commit too, so generation uses explicit RHEL 8 BaseOS and AppStream
+repositories rather than a local `redhat.repo` file.
 
-`rpms.in.yaml` reads its repository definitions from `./redhat.repo`, which is
-produced on a subscribed host at lock time. Generate the lockfile with
-`rpm-lockfile-prototype` from a subscribed RHEL8 host or container, for example:
+To generate it again, install Podman and provide Red Hat Subscription Manager
+credentials plus a registry auth file with access to `registry.redhat.io`:
 
 ```bash
-rpm-lockfile-prototype --outfile=.konflux/rpms.lock.yaml .konflux/rpms.in.yaml
+export RHSM_ORG="<YOUR_RHSM_ORG>"
+export RHSM_ACTIVATION_KEY="<YOUR_RHSM_ACTIVATION_KEY>"
+export AUTH_FILE="/path/to/your/docker/config.json"
+
+# From the topolvm repo root:
+make -f .konflux/konflux.make rpm-lock
 ```
 
-See `openshift/lvm-operator` `release/hack/generate-rpm-lock.md` on the matching
-`release-4.12` branch for the full prerequisites and the containerised workflow.
-
-Until the lockfile exists, the RPM `prefetch-input` step in
-`.tekton/topolvm-push.yaml` and `.tekton/topolvm-pull-request.yaml` will fail.
-
-### Also confirm before generating
-
-The `arches:` list was carried over from 4.14 (`aarch64`, `x86_64`, `s390x`,
-`ppc64le`). It was not possible to verify from the build environment which
-architectures LVMS 4.12 actually shipped, because the registry mirror used for
-inspection down-converts manifest lists to single-arch schema-v1 manifests. Please
-confirm the 4.12 arch set and trim the list if 4.12 is not built for all four.
+The helper runs as root inside a UBI 9 container to use its Python and DNF tools.
+The resolved packages and runtime base image remain RHEL 8. Generation covers all
+four architectures and can take a few minutes.
