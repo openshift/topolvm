@@ -25,7 +25,7 @@ jobs:
       SKIP_NODE_FINALIZE: ${{ inputs.skip_node_finalize }}
       SANITY_TEST_WITH_THIN_DEVICECLASS: ${{ inputs.thin_csi_sanity }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
