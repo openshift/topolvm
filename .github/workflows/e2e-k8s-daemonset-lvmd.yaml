@@ -23,7 +23,7 @@ jobs:
       STORAGE_CAPACITY: "true"
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v7
         with:
           go-version: "1.18"
       - name: cache go dependencies
