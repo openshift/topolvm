@@ -16,7 +16,7 @@ ENV GOEXPERIMENT=strictfipsruntime
 # Use the module cache populated by Konflux gomod prefetch.
 RUN go build -tags strictfipsruntime -o hypertopolvm -mod=readonly -ldflags "-w -s -X github.com/topolvm/topolvm.Version=${TOPOLVM_VERSION}" ./pkg/hypertopolvm
 
-FROM --platform=$TARGETPLATFORM registry.redhat.io/rhel9-2-els/rhel-minimal:9.2-1792010189
+FROM --platform=$TARGETPLATFORM registry.redhat.io/rhel9-2-els/rhel-minimal:9.2-1792761790
 
 ARG MAINTAINER
 ARG TOPOLVM_VERSION
