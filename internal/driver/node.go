@@ -270,6 +270,14 @@ func (s *nodeServerNoLocked) nodePublishFilesystemVolume(req *csi.NodePublishVol
 }
 
 func (s *nodeServerNoLocked) nodePublishBlockVolume(req *csi.NodePublishVolumeRequest, lv *proto.LogicalVolume) error {
+	mounted, err := s.mounter.IsMountPoint(req.GetTargetPath())
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return status.Errorf(codes.Internal, "mount check failed: target=%s, error=%v", req.GetTargetPath(), err)
+	}
+	if mounted {
+		return nil
+	}
+
 	// Find lv and create a block device with it
 	// We mount via bind mount so that we can also respect the readonly flag
 	mountOptions := append(toReadOnlyMountOption(req.GetReadonly()), "bind")
@@ -279,10 +287,6 @@ func (s *nodeServerNoLocked) nodePublishBlockVolume(req *csi.NodePublishVolumeRe
 		return status.Errorf(codes.Internal, "create failed: target=%s, error=%v", req.GetTargetPath(), err)
 	}
 	defer func() { _ = fi.Close() }()
-
-	if err := os.Chmod(req.GetTargetPath(), 0755); err != nil {
-		return status.Errorf(codes.Internal, "chmod failed: target=%s, error=%v", req.GetTargetPath(), err)
-	}
 
 	if err := s.mounter.Mount(lv.GetPath(), req.GetTargetPath(), "", mountOptions); err != nil {
 		return status.Errorf(codes.Internal, "(bind)mount failed: volume=%s, error=%v", req.GetVolumeId(), err)

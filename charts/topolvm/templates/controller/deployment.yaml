@@ -28,6 +28,10 @@ spec:
         {{- with .Values.controller.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- with .Values.controller.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- with .Values.controller.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ . }}
@@ -166,6 +170,9 @@ spec:
             - --enable-capacity
             - --capacity-ownerref-level=2
             {{- end }}
+          {{- with .Values.controller.csiProvisioner.args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 9809
               name: csi-provisioner
@@ -212,6 +219,9 @@ spec:
             - --leader-election-namespace={{ .Release.Namespace }}
             {{- end }}
             - --http-endpoint=:9810
+          {{- with .Values.controller.csiResizer.args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 9810
               name: csi-resizer
@@ -248,6 +258,9 @@ spec:
             - --leader-election-namespace={{ .Release.Namespace }}
             {{- end }}
             - --http-endpoint=:9811
+          {{- with .Values.controller.csiSnapshotter.args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 9811
               name: csi-snapshotter
