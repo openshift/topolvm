@@ -7,7 +7,7 @@
 
 ## Installation
 
-See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.0.0/docs/getting-started.md).
+See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.3.1/docs/getting-started.md).
 
 ## Values
 
@@ -17,12 +17,16 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | controller.additionalContainers | list | `[]` | Define extra containers to add to the Deployment. Please ensure not to use any existing container names. |
 | controller.affinity | string | `"podAntiAffinity:\n  requiredDuringSchedulingIgnoredDuringExecution:\n    - labelSelector:\n        matchExpressions:\n          - key: app.kubernetes.io/component\n            operator: In\n            values:\n              - controller\n          - key: app.kubernetes.io/name\n            operator: In\n            values:\n              - {{ include \"topolvm.name\" . }}\n      topologyKey: kubernetes.io/hostname\n"` | Specify affinity. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
 | controller.args | list | `[]` | Arguments to be passed to the command. |
+| controller.csiProvisioner.args | list | `[]` | Arguments to be passed to the csi-provisioner command. |
+| controller.csiResizer.args | list | `[]` | Arguments to be passed to the csi-resizer command. |
+| controller.csiSnapshotter.args | list | `[]` | Arguments to be passed to the csi-snapshotter command. |
 | controller.initContainers | list | `[]` | Additional initContainers for the controller service. |
 | controller.labels | object | `{}` | Additional labels to be added to the Deployment. |
 | controller.leaderElection.enabled | bool | `true` | Enable leader election for controller and all sidecars. |
 | controller.minReadySeconds | int | `nil` | Specify minReadySeconds. |
 | controller.nodeFinalize.skipped | bool | `false` | Skip automatic cleanup of PhysicalVolumeClaims when a Node is deleted. |
 | controller.nodeSelector | object | `{}` | Specify nodeSelector. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| controller.podAnnotations | object | `{}` | Annotations to be set on the controller pod. |
 | controller.podDisruptionBudget.enabled | bool | `true` | Specify podDisruptionBudget enabled. |
 | controller.podLabels | object | `{}` | Additional labels to be set on the controller pod. |
 | controller.priorityClassName | string | `nil` | Specify priorityClassName. |
@@ -58,7 +62,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | image.csi.nodeDriverRegistrar | string | `nil` | Specify csi-node-driver-registrar: image. If not specified, `ghcr.io/topolvm/topolvm-with-sidecar:{{ .Values.image.reference }}` will be used. |
 | image.pullPolicy | string | `nil` | TopoLVM image pullPolicy. |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets. |
-| image.reference | string | `"0.41.0@sha256:5faf5b94557516ae0f6fa7d329a5a4305e22aa2dc464af7641b31f2aca618036"` | TopoLVM image reference (a tag and/or a digest, e.g. "0.41.0@sha256:...") to use. |
+| image.reference | string | `"0.42.1@sha256:00acceab51f358ea88abd74bd0968f78764e9aa94146590e9bc5ead30243c45a"` | TopoLVM image reference (a tag and/or a digest, e.g. "0.41.0@sha256:...") to use. |
 | image.repository | string | `"ghcr.io/topolvm/topolvm-with-sidecar"` | TopoLVM image repository to use. |
 | livenessProbe.csi_registrar | object | `{"failureThreshold":null,"initialDelaySeconds":10,"periodSeconds":60,"timeoutSeconds":3}` | Specify livenessProbe. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | livenessProbe.lvmd | object | `{"failureThreshold":null,"initialDelaySeconds":10,"periodSeconds":60,"timeoutSeconds":3}` | Specify livenessProbe. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
@@ -100,6 +104,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | node.additionalVolumes | list | `[]` | Specify additional volumes without conflicting with default volumes most useful for initContainers but available to all containers in the pod. |
 | node.affinity | object | `{}` | Specify affinity. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
 | node.args | list | `[]` | Arguments to be passed to the command. |
+| node.csiRegistrar.args | list | `[]` | Arguments to be passed to the csi-registrar command. |
 | node.initContainers | list | `[]` | Additional initContainers for the node service. |
 | node.kubeletWorkDirectory | string | `"/var/lib/kubelet"` | Specify the work directory of Kubelet on the host. For example, on microk8s it needs to be set to `/var/snap/microk8s/common/var/lib/kubelet` |
 | node.labels | object | `{}` | Additional labels to be added to the Daemonset. |
@@ -108,6 +113,7 @@ See [Getting Started](https://github.com/topolvm/topolvm/blob/topolvm-chart-v17.
 | node.metrics.annotations | object | `{"prometheus.io/port":"metrics"}` | Annotations for Scrape used by Prometheus. |
 | node.metrics.enabled | bool | `true` | If true, enable scraping of metrics by Prometheus. |
 | node.nodeSelector | object | `{}` | Specify nodeSelector. # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| node.podAnnotations | object | `{}` | Annotations to be set on the node pods, merged with `node.metrics.annotations` and takes precedence over it. |
 | node.podLabels | object | `{}` | Additional labels to be set on the node pods. |
 | node.podSecurityContext | object | `{}` | Pod securityContext. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | node.priorityClassName | string | `nil` | Specify priorityClassName. |
