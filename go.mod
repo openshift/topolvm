@@ -1,6 +1,6 @@
 module github.com/topolvm/topolvm
 
-go 1.26.5
+go 1.26.10
 
 require (
 	github.com/container-storage-interface/spec v1.10.0
