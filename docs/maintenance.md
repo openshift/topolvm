@@ -21,6 +21,9 @@ If we find some interesting features added in new versions, please consider if w
 
 Choose the next version and check the [release note](https://kubernetes.io/docs/setup/release/notes/). e.g. 1.17, 1.18, 1.19 -> 1.18, 1.19, 1.20
 
+As for the patch version, choose one supported by the minikube version (`MINIKUBE_VERSION` in `versions.mk`), because the e2e tests launch a Kubernetes cluster with minikube.
+You can list the supported versions with the `minikube config defaults kubernetes-version` command.
+
 Edit the following files.
 - `docs/advanced-setup.md`
 - `README.md`
@@ -117,16 +120,18 @@ Please also update the version in the following files.
 
 The depending tools versions are specified in `versions.mk`.
 
-The following tools do not depend on other software, use latest versions.
-
-- [helm](https://github.com/helm/helm/releases)
-- [helm-docs](https://github.com/norwoodj/helm-docs/releases)
-- [protoc](https://github.com/protocolbuffers/protobuf/releases)
+Update all the tools in `versions.mk` to their latest versions, except the following ones.
 
 The following tools depend on kubernetes, use appropriate version associating to minimal supported kubernetes version by TopoLVM.
 
 - [kind](https://github.com/kubernetes-sigs/kind/releases)
 - [minikube](https://github.com/kubernetes/minikube/releases)
+
+The following ones are updated in their own sections.
+
+- `KUBERNETES_VERSION`, `KIND_NODE_IMAGE`, `CONTROLLER_RUNTIME_VERSION` and `CONTROLLER_TOOLS_VERSION` (see [Kubernetes](#kubernetes))
+- `*_VERSION` of CSI sidecars (see [CSI Sidecars](#csi-sidecars))
+- `CERT_MANAGER_VERSION` (see [cert-manager](#cert-manager))
 
 Update `cri-dockerd` to a version specified in CRI_DOCKERD_VERSION in [the minikube Dockerfile](https://github.com/kubernetes/minikube/blob/master/deploy/kicbase/Dockerfile) or newer.
 

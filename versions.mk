@@ -30,7 +30,7 @@ HELM_VERSION := 3.20.2
 # kind node image version is related to kind version.
 # if you change kind version, also change kind node image version.
 # https://github.com/kubernetes-sigs/kind/releases
-KIND_VERSION := v0.31.0
+KIND_VERSION := v0.33.0
 # It is set by CI using the environment variable, use conditional assignment.
 KUBERNETES_VERSION ?= 1.35.4
 KUBERNETES_MINOR = $(shell echo $(KUBERNETES_VERSION) | cut -d '.' -f2)
