@@ -11,7 +11,7 @@ image:
   repository: ghcr.io/topolvm/topolvm-with-sidecar
 
   # image.reference -- TopoLVM image reference (a tag and/or a digest, e.g. "0.41.0@sha256:...") to use.
-  reference: 0.41.0@sha256:5faf5b94557516ae0f6fa7d329a5a4305e22aa2dc464af7641b31f2aca618036
+  reference: 0.42.1@sha256:00acceab51f358ea88abd74bd0968f78764e9aa94146590e9bc5ead30243c45a
 
   # image.pullPolicy -- TopoLVM image pullPolicy.
   pullPolicy:  # Always
@@ -291,6 +291,11 @@ node:
   # node.kubeletWorkDirectory -- Specify the work directory of Kubelet on the host.
   # For example, on microk8s it needs to be set to `/var/snap/microk8s/common/var/lib/kubelet`
   kubeletWorkDirectory: /var/lib/kubelet
+
+  # node.volumeHealth -- Specify whether to report the volume condition in NodeGetVolumeStats.
+  # It runs LVM commands for every volume on every stats request, and kubelet uses the result
+  # only with the CSIVolumeHealth feature gate enabled.
+  volumeHealth: true
 
   # node.args -- Arguments to be passed to the command.
   args: []
