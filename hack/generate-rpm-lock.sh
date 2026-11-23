@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Runs INSIDE a registry.redhat.io/ubi9/ubi container (see hack/rpm-lock.sh).
-# Registers the container with RHSM, enables the RHEL CDN repos, and uses
-# rpm-lockfile-prototype to regenerate .konflux/rpms.lock.yaml for every arch
-# listed in .konflux/rpms.in.yaml.
+# Registers the container with RHSM and uses rpm-lockfile-prototype to
+# regenerate .konflux/rpms.lock.yaml for every arch listed in
+# .konflux/rpms.in.yaml.
 #
 # Modeled on openshift/lvm-operator's release/hack/generate-rpm-lock.sh.
 set -euo pipefail
@@ -13,14 +13,9 @@ set -x
 subscription-manager clean || true
 subscription-manager register --activationkey="${RHSM_ACTIVATION_KEY}" --org="${RHSM_ORG}"
 
-arch="$(uname -m)"
-
-# Activate the binary + source repos for BaseOS and AppStream.
-dnf config-manager \
-    --enable "rhel-9-for-${arch}-appstream-rpms" \
-    --enable "rhel-9-for-${arch}-appstream-source-rpms" \
-    --enable "rhel-9-for-${arch}-baseos-rpms" \
-    --enable "rhel-9-for-${arch}-baseos-source-rpms"
+# No repo enabling needed: the RHEL 9.2 E4S repos are defined with explicit
+# baseurls in .konflux/rpms.in.yaml; registration above provides the
+# entitlement cert/key they authenticate with.
 
 # Install the resolver (same tool Konflux/cachi2 uses).
 dnf install -y pip skopeo
