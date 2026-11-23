@@ -3,9 +3,14 @@ contentOrigin:
   # redhat.repo required): the entitlement cert/key are injected by DNF via the
   # $SSL_CLIENT_CERT / $SSL_CLIENT_KEY variables (see hack/generate-rpm-lock.sh).
   repos:
-    - repoid: rhel-9-for-$basearch-baseos-rpms
-      name: Red Hat Enterprise Linux 9 for $basearch - BaseOS (RPMs)
-      baseurl: https://cdn.redhat.com/content/dist/rhel9/$releasever/$basearch/baseos/os
+    # RHEL 9.2 E4S (Update Services) repos, matching the rhel9-2-els base image
+    # pinned in konflux.Dockerfile (its CPE is cpe:/a:redhat:rhel_e4s:9.2). The
+    # minor version is hardcoded on purpose: the base image is a 9.2 image and
+    # must never resolve against GA repos of a later minor (which is what
+    # $releasever would select).
+    - repoid: rhel-9-for-$basearch-baseos-e4s-rpms
+      name: Red Hat Enterprise Linux 9 for $basearch - BaseOS - Update Services (RPMs)
+      baseurl: https://cdn.redhat.com/content/e4s/rhel9/9.2/$basearch/baseos/os
       enabled: "1"
       gpgcheck: "1"
       gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
@@ -17,9 +22,9 @@ contentOrigin:
       sslclientkey: $SSL_CLIENT_KEY
       sslclientcert: $SSL_CLIENT_CERT
 
-    - repoid: rhel-9-for-$basearch-baseos-source-rpms
-      name: Red Hat Enterprise Linux 9 for $basearch - BaseOS (Source RPMs)
-      baseurl: https://cdn.redhat.com/content/dist/rhel9/$releasever/$basearch/baseos/source/SRPMS
+    - repoid: rhel-9-for-$basearch-baseos-e4s-source-rpms
+      name: Red Hat Enterprise Linux 9 for $basearch - BaseOS - Update Services (Source RPMs)
+      baseurl: https://cdn.redhat.com/content/e4s/rhel9/9.2/$basearch/baseos/source/SRPMS
       enabled: "1"
       gpgcheck: "1"
       gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
@@ -30,22 +35,23 @@ contentOrigin:
       sslclientkey: $SSL_CLIENT_KEY
       sslclientcert: $SSL_CLIENT_CERT
 
-    - repoid: rhel-9-for-$basearch-appstream-rpms
-      name: Red Hat Enterprise Linux 9 for $basearch - AppStream (RPMs)
-      baseurl: https://cdn.redhat.com/content/dist/rhel9/$releasever/$basearch/appstream/os
+    - repoid: rhel-9-for-$basearch-appstream-e4s-rpms
+      name: Red Hat Enterprise Linux 9 for $basearch - AppStream - Update Services (RPMs)
+      baseurl: https://cdn.redhat.com/content/e4s/rhel9/9.2/$basearch/appstream/os
       enabled: "1"
       gpgcheck: "1"
       gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
       sslverify: "1"
+      sslverifystatus: "1"
       metadata_expire: "86400"
       enabled_metadata: "1"
       sslcacert: /etc/rhsm/ca/redhat-uep.pem
       sslclientkey: $SSL_CLIENT_KEY
       sslclientcert: $SSL_CLIENT_CERT
 
-    - repoid: rhel-9-for-$basearch-appstream-source-rpms
-      name: Red Hat Enterprise Linux 9 for $basearch - AppStream (Source RPMs)
-      baseurl: https://cdn.redhat.com/content/dist/rhel9/$releasever/$basearch/appstream/source/SRPMS
+    - repoid: rhel-9-for-$basearch-appstream-e4s-source-rpms
+      name: Red Hat Enterprise Linux 9 for $basearch - AppStream - Update Services (Source RPMs)
+      baseurl: https://cdn.redhat.com/content/e4s/rhel9/9.2/$basearch/appstream/source/SRPMS
       enabled: "1"
       gpgcheck: "1"
       gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
