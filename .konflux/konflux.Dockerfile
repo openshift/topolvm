@@ -18,7 +18,7 @@ ENV GOEXPERIMENT=strictfipsruntime
 # (prefetch-input in .tekton/topolvm-*.yaml) to populate the module cache.
 RUN go build -tags strictfipsruntime -o hypertopolvm -mod=readonly -ldflags "-w -s -X github.com/topolvm/topolvm.Version=${TOPOLVM_VERSION}" ./pkg/hypertopolvm
 
-FROM --platform=$TARGETPLATFORM registry.redhat.io/ubi8/ubi-minimal@sha256:62d3baa1ca1cdc4613ad79521b21bdef5baa81ea9167441c731acef18b8253cf
+FROM --platform=$TARGETPLATFORM registry.redhat.io/ubi8/ubi-minimal@sha256:1068268a5dc71d7b392ab17c07de3ebf64e18d7f34e9b63d213b0a9008993ec1
 
 ARG MAINTAINER
 ARG TOPOLVM_VERSION
